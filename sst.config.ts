@@ -9,7 +9,7 @@ export default {
     };
   },
   stacks(app) {
-    app.stack(function Site({ stack }) {
+    app.stack(function API({ stack }) {
       const service = new Service(stack, "service", {
         port: 3000,
       });
