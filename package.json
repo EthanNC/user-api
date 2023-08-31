@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "tsx watch src/main.ts",
+    "dev": "sst bind tsx watch src/main.ts",
     "migrate": "drizzle-kit generate:pg",
     "build": "tsc",
     "start": "node build/main.js"
@@ -24,6 +24,9 @@
     "drizzle-kit": "^0.17.6",
     "tsx": "^3.12.7",
     "typescript": "^5.0.4",
-    "zod-to-json-schema": "^3.21.1"
+    "zod-to-json-schema": "^3.21.1",
+    "sst": "^2.24.20",
+    "aws-cdk-lib": "2.91.0",
+    "constructs": "10.2.69"
   }
 }

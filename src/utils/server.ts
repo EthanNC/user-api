@@ -55,6 +55,12 @@ export async function buildServer() {
   app.register(applicationRoutes, { prefix: "/api/applications" });
   app.register(usersRoutes, { prefix: "/api/users" });
   app.register(roleRoutes, { prefix: "/api/roles" });
+  //register basic route for health check
+  app.register(async function (app) {
+    app.get("/", async function (request, reply) {
+      return { hello: "world" };
+    });
+  });
 
   return app;
 }
