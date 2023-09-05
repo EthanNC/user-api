@@ -5,6 +5,7 @@ import { applicationRoutes } from "../modules/applications/applications.routes";
 import { usersRoutes } from "../modules/users/users.routes";
 import { roleRoutes } from "../modules/roles/role.routes";
 import jwt from "jsonwebtoken";
+import cors from "@fastify/cors";
 
 type User = {
   id: string;
@@ -40,6 +41,10 @@ export async function buildServer() {
 
       request.user = decoded;
     } catch (e) {}
+  });
+
+  await app.register(cors, {
+    origin: true,
   });
 
   // register plugins

@@ -6,6 +6,7 @@
     "start": "node build/main.js"
   },
   "dependencies": {
+    "@fastify/cors": "^8.3.0",
     "argon2": "^0.30.3",
     "drizzle-orm": "^0.25.4",
     "fastify": "^4.17.0",
