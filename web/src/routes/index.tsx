@@ -1,30 +1,26 @@
-import {
-  LoaderFunctionArgs,
-  Outlet,
-  RouteObject,
-  redirect,
-} from "react-router-dom";
+import { LoaderFunctionArgs, RouteObject, redirect } from "react-router-dom";
 import Home from "./public/home";
 import Login from "./auth/login";
 import { Callback } from "./auth/callback";
+import RootErrorBoundary from "@/components/RootErrorBoundry";
+import AppLayout from "@/components/AppLayout";
 
 export const routes: RouteObject[] = [
   {
     path: "/",
     element: <Home />,
     loader: Home.loader,
+    errorElement: <RootErrorBoundary />,
   },
   {
-    element: <Outlet />,
+    element: <AppLayout />,
+    errorElement: <RootErrorBoundary />,
     children: [
       {
         path: "/applications/:applicationId",
         element: <div>Application</div>,
         loader: ({ params }: LoaderFunctionArgs) => {
-          // get user from local1 storage
-          // if user is not logged in, redirect to login page
-          // else, return user
-
+          //check if user is logged in
           const raw = localStorage.getItem("user");
           if (!raw) {
             return redirect(`/applications/${params.applicationId}/login`);

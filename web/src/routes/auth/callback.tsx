@@ -1,15 +1,20 @@
-import { User, useAuth } from "@/components/provider/auth";
-import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { useAuth } from "@/components/provider/auth";
+import { decodeToken, store } from "@/lib/utils";
+import { useEffect } from "react";
+import { Navigate, useSearchParams } from "react-router-dom";
 
 export function Callback() {
-  const [user, setUser] = useState<User | null>(null);
-  const { parseTokenFromUrl } = useAuth();
+  const { user, setUser } = useAuth();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    const newUser = parseTokenFromUrl();
-    setUser(newUser);
-  }, []);
+    const token = searchParams.get("access_token");
+    if (token) {
+      const user = decodeToken({ token });
+      store.set({ user });
+      setUser(user);
+    }
+  }, [searchParams, setUser, user]);
 
   if (user?.applicationId) {
     return <Navigate to={`/applications/${user.applicationId}`} />;

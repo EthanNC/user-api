@@ -1,5 +1,13 @@
-import { ReactNode, createContext, useContext, useMemo } from "react";
-import invariant from "tiny-invariant";
+import { decodeToken, store } from "@/lib/utils";
+import {
+  ReactNode,
+  SetStateAction,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  Dispatch,
+} from "react";
 
 export interface User {
   id: string;
@@ -12,76 +20,57 @@ export interface User {
 interface AuthContextType {
   user?: User | null;
   logout: () => void;
-  parseTokenFromUrl: () => User | null;
+  setUser: Dispatch<SetStateAction<User | null>>;
 }
-
-function decodeToken(input: { token: string }): User {
-  const [, payloadEncoded] = input.token.split(".");
-  invariant(payloadEncoded, "Invalid access token");
-  const payload = JSON.parse(
-    atob(payloadEncoded.replace(/-/g, "+").replace(/_/g, "/"))
-  );
-  console.log("🤖 Decoded token", JSON.stringify(payload, null, 2));
-  return {
-    ...payload,
-    token: input.token,
-  };
-}
-
-const store = {
-  get() {
-    const raw = localStorage.getItem("user");
-    if (!raw) return null;
-    return JSON.parse(raw) as User;
-  },
-  set(input: { user: User }) {
-    return localStorage.setItem("user", JSON.stringify(input.user));
-  },
-  remove() {
-    return localStorage.removeItem("user");
-  },
-};
 
 function logout() {
   store.remove();
   location.href = location.origin;
 }
 
-export function parseTokenFromUrl() {
-  const search = window.location.search;
-  const params = new URLSearchParams(search);
-
-  const access_token = params.get("access_token");
-
-  if (access_token) {
-    // Handling an auth callback, this should become the authoritative account
-    const _account = decodeToken({ token: access_token });
-    console.log(
-      "🤖 Auth registering account from callback",
-      JSON.stringify(_account, null, 2)
-    );
-    store.set({ user: _account });
-    return _account;
-  }
-  return store.get();
-}
-
-//manually set user
-
 // Create the Auth Context object
-const AuthContext = createContext<AuthContextType>({
-  user: undefined,
-  logout,
-  parseTokenFromUrl,
-});
+const AuthContext = createContext<AuthContextType>(
+  null as unknown as AuthContextType
+);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const user = useMemo(parseTokenFromUrl, []);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const search = window.location.search;
+    const params = new URLSearchParams(search);
+    const newToken = params.get("access_token");
+
+    if (newToken) {
+      // Handling an auth callback, this should become the authoritative account
+      const _account = decodeToken({ token: newToken });
+      console.log(
+        "🤖 Auth registering account from callback",
+        JSON.stringify(_account, null, 2)
+      );
+      store.set({ user: _account });
+      setUser(_account);
+      return;
+    }
+
+    // No auth callback, but lets check for an account in localstorage
+    const _account = store.get();
+    if (_account) {
+      console.log(
+        "🤖 Auth rehydrating account from localstorage",
+        JSON.stringify(_account, null, 2)
+      );
+      setUser(_account);
+      return;
+    }
+
+    console.log("🤖 No active Auth session");
+  }, []);
 
   const value = {
     user,
     logout,
-    parseTokenFromUrl,
+    setUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
