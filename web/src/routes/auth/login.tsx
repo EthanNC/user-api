@@ -1,5 +1,6 @@
 import { useAuth } from "@/components/provider/auth";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { userLogin } from "@/lib/requests";
 import { useEffect } from "react";
@@ -20,18 +21,29 @@ export default function Login() {
   }, [user, navigate]);
 
   return (
-    <>
-      <Form method="post" className="flex flex-col">
-        <Input required name="email" type="email" placeholder="email" />
-        <Input
-          required
-          name="password"
-          type="password"
-          placeholder="password"
-        />
-        <Button type="submit">Login</Button>
-      </Form>
-    </>
+    <div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Application Login</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form method="post" className="flex flex-col space-y-2">
+            <Input required name="email" type="email" placeholder="email" />
+            <Input
+              required
+              name="password"
+              type="password"
+              placeholder="password"
+            />
+            <div className="flex">
+              <Button className="w-full" type="submit">
+                Login
+              </Button>
+            </div>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
